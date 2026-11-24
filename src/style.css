@@ -1,0 +1,148 @@
+:root {
+  --sky: #ddf1ff;
+  --ink: #2b2140;
+  --soft: #6a6388;
+  --card: #ffffff;
+  --leaf: #2fa56a;
+  --apple: #e8475b;
+  --sun: #ffc22e;
+  --blue: #3c93e8;
+  --display: 'Baloo 2', 'Trebuchet MS', system-ui, sans-serif;
+  --body: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  color-scheme: light;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  background: var(--sky);
+  color: var(--ink);
+  font-family: var(--body);
+  -webkit-tap-highlight-color: transparent;
+}
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: max(20px, env(safe-area-inset-top)) 16px 40px;
+}
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.hero-pico {
+  width: 120px;
+  height: 120px;
+  flex: none;
+}
+h1 {
+  font-family: var(--display);
+  font-size: 2rem;
+  line-height: 1.1;
+  margin: 0;
+}
+h2 {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  margin: 0 0 10px;
+}
+.sub {
+  color: var(--soft);
+  margin: 4px 0 0;
+  font-weight: 700;
+}
+.checks {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+  display: grid;
+  gap: 10px;
+}
+.check {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--card);
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-shadow: 0 3px 0 rgba(43, 33, 64, 0.08);
+  border-left: 6px solid #cfd6e4;
+}
+.check.ok {
+  border-left-color: var(--leaf);
+}
+.check.ko {
+  border-left-color: var(--apple);
+}
+.check.warn {
+  border-left-color: var(--sun);
+}
+.check .ic {
+  font-size: 1.5rem;
+}
+.check div {
+  display: grid;
+  gap: 2px;
+}
+.check b {
+  font-size: 1.05rem;
+}
+.check span {
+  color: var(--soft);
+  font-size: 0.95rem;
+}
+.tries,
+.howto {
+  background: var(--card);
+  border-radius: 22px;
+  padding: 18px;
+  margin-top: 16px;
+}
+.btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.btn {
+  font: 800 1.05rem var(--body);
+  border: 0;
+  border-radius: 16px;
+  padding: 14px 18px;
+  color: #fff;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+}
+.btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
+}
+.btn.sun {
+  background: var(--sun);
+  color: var(--ink);
+}
+.btn.blue {
+  background: var(--blue);
+}
+.btn.leaf {
+  background: var(--leaf);
+}
+.extra {
+  margin: 14px 0 0;
+  font-weight: 700;
+}
+.howto ol {
+  margin: 0;
+  padding-left: 22px;
+  line-height: 1.6;
+}
+.wave {
+  transform-origin: 100px 62px;
+  animation: wave 1.2s ease-in-out infinite;
+}
+@keyframes wave {
+  50% {
+    transform: rotate(-18deg);
+  }
+}
