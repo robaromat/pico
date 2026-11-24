@@ -1,0 +1,39 @@
+// Petite appli Android qui affiche https://robaromat.github.io/pico/ dans sa propre WebView.
+// Elle ne passe pas par Chrome : c'est ce qui lui permet de s'ouvrir dans le mode enfant de la tablette.
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'io.github.robaromat.pico'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'io.github.robaromat.pico'
+        minSdk 24
+        targetSdk 35
+        versionCode Integer.parseInt(System.getenv('PICO_VERSION_CODE') ?: '1')
+        versionName System.getenv('PICO_VERSION_NAME') ?: '0.1'
+    }
+
+    signingConfigs {
+        release {
+            // Clé fournie par GitHub Actions (secrets du dépôt) : toujours la même, pour que les mises à jour s'installent par-dessus.
+            storeFile System.getenv('PICO_KEYSTORE') ? file(System.getenv('PICO_KEYSTORE')) : null
+            storeType 'pkcs12'
+            storePassword System.getenv('PICO_KS_PASS')
+            keyAlias System.getenv('PICO_KEY_ALIAS')
+            keyPassword System.getenv('PICO_KS_PASS')
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

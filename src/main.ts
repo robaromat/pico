@@ -6,6 +6,13 @@ import { pico } from './pico';
 
 declare const __APP_VERSION__: string;
 
+/** Présent seulement dans l'appli Android (WebView) : voir android/…/MainActivity.java. */
+interface PicoBridge {
+  version(): string;
+  setLandscape(on: boolean): void;
+}
+const bridge = (window as unknown as { PicoAndroid?: PicoBridge }).PicoAndroid;
+
 type Status = 'ok' | 'ko' | 'warn' | 'wait';
 interface Check {
   id: string;
@@ -130,6 +137,7 @@ async function checkStorage(): Promise<void> {
 }
 
 async function checkPersist(): Promise<void> {
+  if (bridge) return set('persist', 'ok', "Les données sont rangées dans l'appli, Chrome ne peut pas les effacer");
   if (!navigator.storage?.persist) return set('persist', 'warn', 'Non disponible sur ce navigateur');
   try {
     const granted = (await navigator.storage.persisted()) || (await navigator.storage.persist());
@@ -167,6 +175,7 @@ async function checkNetwork(): Promise<void> {
 // ---------- Installation et hors connexion ----------
 let swError = '';
 function checkInstall(): void {
+  if (bridge) return set('install', 'ok', `Dans l'appli Android Pico (v${bridge.version()})`);
   const standalone = matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches;
   set('install', standalone ? 'ok' : 'warn', standalone ? 'Ouverte en plein écran, sans barre du navigateur' : 'Ouverte dans le navigateur : installe-la depuis le menu de Chrome');
 }
@@ -213,6 +222,11 @@ function playChime(): void {
 }
 
 async function tryLandscape(): Promise<void> {
+  if (bridge) {
+    bridge.setLandscape(true);
+    extra = '↔️ La tablette doit être passée en paysage plein écran. Touche « Revérifier » pour revenir.';
+    return render();
+  }
   const steps: string[] = [];
   try {
     await document.documentElement.requestFullscreen();
@@ -233,6 +247,7 @@ async function tryLandscape(): Promise<void> {
 }
 
 async function leaveLandscape(): Promise<void> {
+  bridge?.setLandscape(false);
   try {
     screen.orientation?.unlock?.();
     if (document.fullscreenElement) await document.exitFullscreen();

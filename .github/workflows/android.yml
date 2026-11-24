@@ -1,0 +1,58 @@
+name: Appli Android
+
+# Compile l'APK (une WebView qui affiche https://robaromat.github.io/pico/) et la publie
+# dans la release « android » du dépôt. Signée avec la clé de l'appli si les secrets existent,
+# sinon avec une clé de test (les mises à jour ne s'installeront alors pas par-dessus).
+on:
+  push:
+    branches: [main]
+    paths: ['android/**', '.github/workflows/android.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Clé de signature
+        env:
+          KS: ${{ secrets.PICO_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS" ]; then
+            echo "$KS" | base64 -d > "$RUNNER_TEMP/pico.p12"
+            echo "PICO_KEYSTORE=$RUNNER_TEMP/pico.p12" >> "$GITHUB_ENV"
+            echo "TASK=assembleRelease" >> "$GITHUB_ENV"
+          else
+            echo "::warning::Pas de clé de l'appli : APK signée avec une clé de test"
+            echo "TASK=assembleDebug" >> "$GITHUB_ENV"
+          fi
+      - name: Compilation
+        env:
+          PICO_KS_PASS: ${{ secrets.PICO_KS_PASS }}
+          PICO_KEY_ALIAS: ${{ secrets.PICO_KEY_ALIAS }}
+          PICO_VERSION_CODE: ${{ github.run_number }}
+          PICO_VERSION_NAME: 0.${{ github.run_number }}
+        run: |
+          gradle -p android "$TASK" --no-daemon
+          find android/app/build/outputs/apk -name '*.apk' -exec cp {} pico.apk \;
+          ls -l pico.apk
+      - name: Publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view android >/dev/null 2>&1 || gh release create android --title "Appli Android" --notes "Appli Pico pour la tablette : télécharger pico.apk sur la tablette et l'installer."
+          gh release upload android pico.apk --clobber
