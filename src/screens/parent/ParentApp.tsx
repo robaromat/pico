@@ -22,6 +22,7 @@ import { askCode, toast } from '../../ui/ask';
 import { Chips, Sheet, Toggle } from '../../ui/Sheet';
 import { useNow } from '../../ui/useNow';
 import { Settings } from './Settings';
+import { Tuto, tutoSeen } from './Tuto';
 
 // Téléphone parent : tableau de bord en lecture, et chaque action protégée par le code (redemandé à chaque fois).
 
@@ -33,12 +34,23 @@ export function ParentApp({ onTablet, onBack }: { onTablet: boolean; onBack: () 
   const now = useNow();
   const [sheet, setSheet] = useState<SheetKind>(null);
   const [settings, setSettings] = useState(false);
+  // Le tuto s'affiche la première fois sur un téléphone (pas en mode parent sur la tablette).
+  const [tuto, setTuto] = useState(() => !onTablet && !tutoSeen());
 
   async function openSettings() {
     if (await askCode('Réglages')) setSettings(true);
   }
 
-  if (settings) return <Settings onClose={() => setSettings(false)} />;
+  if (settings)
+    return (
+      <Settings
+        onClose={() => setSettings(false)}
+        onTuto={() => {
+          setSettings(false);
+          setTuto(true);
+        }}
+      />
+    );
 
   const today = dayKey(now);
   const pause = isPause(f, child.id, today);
@@ -115,6 +127,7 @@ export function ParentApp({ onTablet, onBack }: { onTablet: boolean; onBack: () 
       {sheet === 'reward' && <RewardSheet f={f} child={child} onClose={() => setSheet(null)} />}
       {sheet === 'special' && <SpecialSheet child={child} onClose={() => setSheet(null)} />}
       {sheet === 'correct' && <CorrectSheet f={f} child={child} onClose={() => setSheet(null)} />}
+      {tuto && <Tuto name={child.name} onClose={() => setTuto(false)} />}
     </div>
   );
 }

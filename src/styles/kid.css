@@ -592,3 +592,84 @@
   font-weight: 700;
   color: var(--k-soft);
 }
+
+/* choix du jeu */
+.choose {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #ddf1ff, #e7f7ea);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 20px;
+  color: var(--k-ink);
+  text-align: center;
+}
+.choose h2 {
+  font-family: var(--display);
+  font-size: 36px;
+  margin: 0;
+}
+.choose-list {
+  display: grid;
+  gap: 14px;
+  width: min(520px, 100%);
+}
+.gcard {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  grid-template-areas: 'e t' 'e h' 'e r';
+  align-items: center;
+  text-align: left;
+  column-gap: 14px;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 5px 0 rgba(43, 33, 64, 0.12);
+  color: var(--k-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.gcard:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(43, 33, 64, 0.12);
+}
+.gcard-emoji {
+  grid-area: e;
+  font-size: 46px;
+  width: 76px;
+  height: 76px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+}
+.g-course .gcard-emoji {
+  background: #e7f7ea;
+}
+.g-verger .gcard-emoji {
+  background: #fff0d8;
+}
+.g-espace .gcard-emoji {
+  background: #2b2c6e;
+}
+.gcard b {
+  grid-area: t;
+  font-family: var(--display);
+  font-size: 26px;
+  line-height: 1.1;
+}
+.gcard small {
+  grid-area: h;
+  font-weight: 700;
+  color: var(--k-soft);
+}
+.gcard em {
+  grid-area: r;
+  font-style: normal;
+  font-weight: 800;
+  color: #3c93e8;
+  font-size: 14px;
+}

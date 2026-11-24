@@ -63,6 +63,7 @@ export function newFile(opts: { childName: string; startPoints: number; codeHash
     dreamId: null,
     level: 1,
     best: 0,
+    bests: {},
     updatedAt: now,
   };
   const missions: Mission[] = MISSION_LIBRARY.map(([emoji, title, points, moment, active, days], i) => ({

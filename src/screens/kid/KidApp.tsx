@@ -45,7 +45,8 @@ export function KidApp({ onParent }: { onParent: () => void }) {
       <Game
         child={child}
         sound={sound}
-        onEnd={(r) => mutate((x) => finishPlay(x, child.id, r.score, r.lives, r.seconds))}
+        onStart={(g) => mutate((x) => startPlay(x, child.id, g))}
+        onEnd={(g, r) => mutate((x) => finishPlay(x, child.id, g, r.score, r.lives, r.seconds))}
         onExit={() => {
           setPlaying(false);
           setTab('missions');
@@ -71,10 +72,7 @@ export function KidApp({ onParent }: { onParent: () => void }) {
       </header>
 
       <main class="k-body">
-        {tab === 'missions' && <Missions f={f} child={child} st={st} sound={sound} onPlay={() => {
-          mutate((x) => startPlay(x, child.id));
-          setPlaying(true);
-        }} />}
+        {tab === 'missions' && <Missions f={f} child={child} st={st} sound={sound} onPlay={() => setPlaying(true)} />}
         {tab === 'shop' && <Shop f={f} child={child} st={st} onBought={setBought} sound={sound} />}
         {tab === 'treasures' && <Treasures f={f} child={child} />}
       </main>

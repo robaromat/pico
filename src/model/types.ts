@@ -6,6 +6,9 @@ export type Moment = 'matin' | 'aprem' | 'soir';
 /** Moment affiché : un défi ponctuel peut valoir pour toute la journée. */
 export type MissionMoment = Moment | 'jour';
 
+/** Les jeux de Pico. */
+export type GameId = 'course' | 'espace' | 'verger';
+
 export interface Schedule {
   /** Fin du matin (début de l'après-midi), « HH:MM ». */
   matin: string;
@@ -39,7 +42,10 @@ export interface Child {
   dreamId: string | null;
   /** Niveau de difficulté du jeu (0,75 à 1,3), ajusté après chaque partie. */
   level: number;
+  /** Meilleur score de la course (ancien champ, gardé pour la compatibilité). */
   best: number;
+  /** Meilleur score de chaque jeu. */
+  bests: Record<string, number>;
   updatedAt: string;
 }
 

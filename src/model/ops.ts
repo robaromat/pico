@@ -1,7 +1,7 @@
 import { newId } from '../lib/ids';
 import { childEvents, decisions } from './rules';
 import { dayKey } from './time';
-import type { Child, Mission, PicoEvent, PicoFile, Reward, Settings } from './types';
+import type { Child, GameId, Mission, PicoEvent, PicoFile, Reward, Settings } from './types';
 
 // Modifications du fichier. Chaque fonction renvoie un nouveau fichier (l'ancien n'est jamais modifié),
 // pour le moteur de synchro (mutate) et pour les tests.
@@ -51,14 +51,23 @@ export function upsertReward(f: PicoFile, r: Reward, now = new Date()): PicoFile
 }
 
 /** Début d'une partie : la partie est consommée tout de suite (fermer l'appli ne la rend pas). */
-export const startPlay = (f: PicoFile, childId: string, now = new Date()) => addEvent(f, childId, { type: 'play', gameId: 'course', score: 0 }, now);
+export const startPlay = (f: PicoFile, childId: string, gameId: GameId = 'course', now = new Date()) => addEvent(f, childId, { type: 'play', gameId, score: 0 }, now);
+
+/** Meilleur score d'un jeu (la course reprend l'ancien champ). */
+export const bestOf = (c: Child, gameId: GameId) => Math.max(c.bests?.[gameId] ?? 0, gameId === 'course' ? c.best : 0);
 
 /** Fin d'une partie : meilleur score, et difficulté ajustée doucement. */
-export function finishPlay(f: PicoFile, childId: string, score: number, livesLeft: number, seconds: number, now = new Date()): PicoFile {
+export function finishPlay(f: PicoFile, childId: string, gameId: GameId, score: number, livesLeft: number, seconds: number, now = new Date()): PicoFile {
   const c = f.children.find((x) => x.id === childId);
   if (!c) return f;
   let level = c.level;
   if (livesLeft <= 0 && seconds < 25) level = Math.max(0.75, level - 0.1);
   else if (livesLeft >= 2) level = Math.min(1.3, level + 0.05);
-  return updateChild(f, childId, { level: Math.round(level * 100) / 100, best: Math.max(c.best, score) }, now);
+  const best = Math.max(bestOf(c, gameId), score);
+  return updateChild(
+    f,
+    childId,
+    { level: Math.round(level * 100) / 100, bests: { ...c.bests, [gameId]: best }, ...(gameId === 'course' ? { best } : {}) },
+    now,
+  );
 }

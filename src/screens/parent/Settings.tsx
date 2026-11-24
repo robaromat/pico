@@ -17,7 +17,7 @@ import { Chips, Sheet, Toggle } from '../../ui/Sheet';
 const MOMENTS: MissionMoment[] = ['matin', 'aprem', 'soir'];
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
-export function Settings({ onClose }: { onClose: () => void }) {
+export function Settings({ onClose, onTuto }: { onClose: () => void; onTuto: () => void }) {
   const f = data.value!;
   const child = f.children[0]!;
   const [mission, setMission] = useState<Mission | null>(null);
@@ -164,6 +164,12 @@ export function Settings({ onClose }: { onClose: () => void }) {
             <span class="grow">Code parent</span>
             <button class="pbtn" onClick={() => setCode(true)}>
               Changer
+            </button>
+          </div>
+          <div class="set-i">
+            <span class="grow">Revoir la présentation de l'appli (ce téléphone)</span>
+            <button class="pbtn" onClick={onTuto}>
+              Revoir
             </button>
           </div>
           <div class="set-i">

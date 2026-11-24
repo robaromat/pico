@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { newFile } from './defaults';
 import { mergePico } from './merge';
-import { addEvent, decide, decideAll, declare, startPlay, finishPlay, updateChild } from './ops';
+import { addEvent, bestOf, decide, decideAll, declare, startPlay, finishPlay, updateChild } from './ops';
 import { balance, gamesLeft, lastDays, missionRates, nowState, pendingDeclarations } from './rules';
 import { periodAt } from './time';
 import type { PicoFile } from './types';
@@ -84,12 +84,18 @@ describe('missions et points', () => {
     f = declare(f, 'c1', 'm2', at(7, 31));
     f = decideAll(f, [f.events[0]!.id, f.events[1]!.id], at(7, 40));
     expect(gamesLeft(f, 'c1', '2026-11-24')).toBe(2);
-    f = startPlay(f, 'c1', at(16, 0));
-    f = finishPlay(f, 'c1', 12, 3, 60, at(16, 1));
+    f = startPlay(f, 'c1', 'course', at(16, 0));
+    f = finishPlay(f, 'c1', 'course', 12, 3, 60, at(16, 1));
     expect(gamesLeft(f, 'c1', '2026-11-24')).toBe(1);
     expect(gamesLeft(f, 'c1', '2026-11-25')).toBe(0);
     expect(child(f).best).toBe(12);
     expect(child(f).level).toBe(1.05);
+    // Un autre jeu a son propre record, la course garde le sien.
+    f = startPlay(f, 'c1', 'verger', at(17, 0));
+    f = finishPlay(f, 'c1', 'verger', 7, 0, 40, at(17, 1));
+    expect(gamesLeft(f, 'c1', '2026-11-24')).toBe(0);
+    expect(bestOf(child(f), 'verger')).toBe(7);
+    expect(bestOf(child(f), 'course')).toBe(12);
   });
 
   it('surprise, achat et correction', () => {

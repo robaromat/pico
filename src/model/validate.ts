@@ -17,7 +17,7 @@ export function parsePicoFile(raw: unknown): PicoFile | null {
     settings: { ...defaultSettings(f.settings.updatedAt ?? new Date(0).toISOString()), ...f.settings },
     children: f.children.map((c) => {
       const raw = c as Partial<typeof c>;
-      return { ...c, level: raw.level ?? 1, best: raw.best ?? 0, dreamId: raw.dreamId ?? null, introDone: raw.introDone ?? false };
+      return { ...c, level: raw.level ?? 1, best: raw.best ?? 0, bests: raw.bests ?? { course: raw.best ?? 0 }, dreamId: raw.dreamId ?? null, introDone: raw.introDone ?? false };
     }),
   };
 }
