@@ -12,4 +12,5 @@ npm run build
 npm run icons   # régénère les icônes à partir du dessin de Pico
 ```
 
-Phase actuelle : page de test de la tablette (stockage, réseau, hors connexion, son, plein écran paysage).
+- Page de test de l'appareil : `…/pico/#test` (stockage, réseau, hors connexion, son, plein écran paysage).
+- Appli Android (dossier `android/`) : la même page dans sa propre WebView, compilée par GitHub Actions (release « android »).

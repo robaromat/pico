@@ -1,13 +1,17 @@
 package io.github.robaromat.pico;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -20,7 +24,9 @@ import android.webkit.WebViewClient;
 public class MainActivity extends Activity {
     private static final String HOME = "https://robaromat.github.io/pico/";
     private static final String HOST = "robaromat.github.io";
+    private static final int CAMERA_REQUEST = 1;
     private WebView web;
+    private PermissionRequest pendingCamera;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -48,6 +54,25 @@ public class MainActivity extends Activity {
             }
         });
 
+        // La page demande la caméra (scan du QR code d'installation) : on relaie la demande à Android.
+        web.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onPermissionRequest(PermissionRequest request) {
+                runOnUiThread(() -> {
+                    if (!HOST.equals(request.getOrigin().getHost())) {
+                        request.deny();
+                        return;
+                    }
+                    if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                        request.grant(new String[] { PermissionRequest.RESOURCE_VIDEO_CAPTURE });
+                    } else {
+                        pendingCamera = request;
+                        requestPermissions(new String[] { Manifest.permission.CAMERA }, CAMERA_REQUEST);
+                    }
+                });
+            }
+        });
+
         if (saved != null) web.restoreState(saved);
         else web.loadUrl(HOME);
     }
@@ -56,6 +81,16 @@ public class MainActivity extends Activity {
     protected void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
         web.saveState(out);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
+        super.onRequestPermissionsResult(code, perms, results);
+        if (code != CAMERA_REQUEST || pendingCamera == null) return;
+        if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED)
+            pendingCamera.grant(new String[] { PermissionRequest.RESOURCE_VIDEO_CAPTURE });
+        else pendingCamera.deny();
+        pendingCamera = null;
     }
 
     @Override
@@ -68,7 +103,7 @@ public class MainActivity extends Activity {
     private class Bridge {
         @JavascriptInterface
         public String version() {
-            return "1";
+            return "2";
         }
 
         /** Le jeu passe en paysage plein écran, puis revient en mode normal. */

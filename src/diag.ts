@@ -1,17 +1,12 @@
-// Phase 0 : page de diagnostic. Elle vérifie que l'app tourne bien sur la tablette
+// Page de diagnostic (adresse …/pico/#test), gardée depuis la phase 0. Elle vérifie que l'app tourne bien sur la tablette
 // (installée, dans le mode enfant) : stockage local qui survit au redémarrage, accès au réseau,
 // hors connexion, son, plein écran paysage pour le jeu.
-import './style.css';
+import './diag.css';
 import { pico } from './pico';
 
-declare const __APP_VERSION__: string;
 
-/** Présent seulement dans l'appli Android (WebView) : voir android/…/MainActivity.java. */
-interface PicoBridge {
-  version(): string;
-  setLandscape(on: boolean): void;
-}
-const bridge = (window as unknown as { PicoAndroid?: PicoBridge }).PicoAndroid;
+
+const bridge = window.PicoAndroid;
 
 type Status = 'ok' | 'ko' | 'warn' | 'wait';
 interface Check {
@@ -75,6 +70,7 @@ function render(): void {
         <button id="sound" class="btn sun">🔔 Jouer un son</button>
         <button id="land" class="btn blue">↔️ Plein écran paysage</button>
         <button id="recheck" class="btn leaf">🔄 Revérifier</button>
+        <button id="back" class="btn blue">← Retour à Pico</button>
       </div>
       ${extra ? `<p class="extra">${extra}</p>` : ''}
     </section>
@@ -91,6 +87,10 @@ function render(): void {
   document.getElementById('sound')?.addEventListener('click', playChime);
   document.getElementById('land')?.addEventListener('click', tryLandscape);
   document.getElementById('recheck')?.addEventListener('click', () => void runAll());
+  document.getElementById('back')?.addEventListener('click', () => {
+    history.replaceState(null, '', location.pathname);
+    location.reload();
+  });
 }
 
 // ---------- Mémoire (IndexedDB) ----------

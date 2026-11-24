@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { defineConfig, type Plugin } from 'vite';
+import preact from '@preact/preset-vite';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as { version: string };
 
@@ -30,7 +31,7 @@ function serviceWorker(): Plugin {
 // L'app est servie par GitHub Pages sous https://robaromat.github.io/pico/
 export default defineConfig({
   base: '/pico/',
-  plugins: [serviceWorker()],
+  plugins: [preact(), serviceWorker()],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },

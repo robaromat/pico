@@ -27,6 +27,14 @@ export function picoArt(expr: Expression = 'idle', scarf = '#FFC22E'): string {
     expr === 'hello'
       ? `<g class="wave"><ellipse cx="104" cy="56" rx="5.5" ry="7.5" fill="${PC.body}"/><ellipse cx="104" cy="54" rx="3" ry="4" fill="${PC.belly}"/></g>`
       : '';
+  const gift =
+    expr === 'gift'
+      ? `<g><rect x="82" y="90" width="28" height="22" rx="3" fill="#E8475B"/><rect x="93" y="90" width="6" height="22" fill="#FFC22E"/><rect x="80" y="86" width="32" height="7" rx="2" fill="#F05A6D"/><path d="M96 86 q-9 -10 -12 -2 q4 4 12 2 q8 2 12 -2 q-3 -8 -12 2z" fill="#FFC22E"/></g>`
+      : '';
+  const zz =
+    expr === 'sleep'
+      ? `<text x="96" y="44" font-family="Baloo 2,sans-serif" font-weight="800" font-size="14" fill="#C9C3FF">z</text><text x="104" y="32" font-family="Baloo 2,sans-serif" font-weight="800" font-size="18" fill="#E6E1FF">Z</text>`
+      : '';
   return `<polygon points="${pts}" fill="${PC.spike}"/>
   <rect x="20" y="62" width="22" height="28" rx="7" fill="#3E8E5E"/><rect x="23" y="70" width="16" height="9" rx="3" fill="#57AE78"/>
   <ellipse cx="60" cy="76" rx="36" ry="29" fill="${PC.body}"/>
@@ -42,7 +50,7 @@ export function picoArt(expr: Expression = 'idle', scarf = '#FFC22E'): string {
   <path d="M63 86 Q79 98 97 91" stroke="${scarf}" stroke-width="8" fill="none" stroke-linecap="round"/>
   <path d="M70 92 L64 108" stroke="${scarf}" stroke-width="7" stroke-linecap="round"/>
   <path d="M65 103 l5 2" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round"/>
-  ${paw}`;
+  ${paw}${gift}${zz}`;
 }
 
 export function pico(expr: Expression = 'idle', scarf?: string, cls = ''): string {
