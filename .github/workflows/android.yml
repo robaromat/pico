@@ -31,9 +31,18 @@ jobs:
       - name: Clé de signature
         env:
           KS: ${{ secrets.PICO_KEYSTORE_B64 }}
+          PICO_KS_PASS: ${{ secrets.PICO_KS_PASS }}
+          PICO_KEY_ALIAS: ${{ secrets.PICO_KEY_ALIAS }}
         run: |
           if [ -n "$KS" ]; then
-            echo "$KS" | base64 -d > "$RUNNER_TEMP/pico.p12"
+            echo "$KS" | base64 -d > "$RUNNER_TEMP/orig.p12"
+            # La clé est créée par OpenSSL 3 (chiffrement AES) : on la réécrit au format PKCS12 classique,
+            # que l'outil de signature Android lit sans souci. Même clé, même certificat.
+            ( umask 077
+              openssl pkcs12 -in "$RUNNER_TEMP/orig.p12" -nodes -passin env:PICO_KS_PASS -out "$RUNNER_TEMP/k.pem"
+              openssl pkcs12 -export -in "$RUNNER_TEMP/k.pem" -name "$PICO_KEY_ALIAS" -out "$RUNNER_TEMP/pico.p12"                 -passout env:PICO_KS_PASS -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -macalg sha1
+              rm -f "$RUNNER_TEMP/k.pem" "$RUNNER_TEMP/orig.p12" )
+            keytool -list -keystore "$RUNNER_TEMP/pico.p12" -storetype pkcs12 -storepass:env PICO_KS_PASS | grep -i privatekeyentry
             echo "PICO_KEYSTORE=$RUNNER_TEMP/pico.p12" >> "$GITHUB_ENV"
             echo "TASK=assembleRelease" >> "$GITHUB_ENV"
           else
