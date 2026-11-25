@@ -37,8 +37,14 @@ const REWARDS: [string, string, number][] = [
 
 export const SCARVES = ['#FFC22E', '#E8475B', '#3C93E8', '#2FA56A', '#8A5CF5'];
 
-export const MISSION_EMOJIS = ['⭐', '🤝', '🧹', '🐶', '🎨', '💬', '🧸', '📚', '🦷', '👕', '🍽️', '🛁', '🌙', '🚲', '🎵', '🌱'];
-export const REWARD_EMOJIS = ['🎁', '🍨', '🎬', '🎲', '🎂', '🛝', '🧩', '📚', '🍕', '🏊', '🎨', '🚲'];
+export const MISSION_EMOJIS = ['⭐', '🖐️', '👕', '⏰', '🏫', '✏️', '🧸', '🛁', '✅', '🚸', '🛒', '💛', '🤝', '🧹', '🐶', '🎨', '💬', '📚', '🦷', '🍽️', '🌙', '🚲', '🎵', '🌱'];
+
+/** Défis ponctuels prêts à l'emploi (Défi du jour) : [emoji, intitulé, points]. */
+export const DEFI_TEMPLATES: [string, string, number][] = [
+  ['🚸', "J'ai été prudent en ville (je reste à côté des adultes)", 1],
+  ['🛒', 'Je me tiens bien dans un magasin', 1],
+];
+export const REWARD_EMOJIS = ['🎁', '📖', '🎲', '🍨', '💛', '☕', '🍽️', '🎬', '🧸', '🧁', '🏊', '🍿', '🐐', '🎳', '🦒', '🤸', '🎢', '🏰', '🛡️', '🎂', '🛝', '🧩', '🍕', '🎨', '🚲'];
 
 export function defaultSettings(now: string): Omit<Settings, 'codeHash' | 'codeSalt'> {
   return {

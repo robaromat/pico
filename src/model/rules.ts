@@ -148,6 +148,8 @@ export function nowState(f: PicoFile, child: Child, now: Date): NowState {
       ? []
       : missionStatuses(f, child.id, now)
           .filter((v) => v.mission.moment === current || v.mission.moment === 'jour')
+          // Mission « à partir de 16 h » : cachée avant l'heure (sauf si déjà déclarée).
+          .filter((v) => !v.mission.from || v.status !== 'todo' || minutesOf(now) >= toMinutes(v.mission.from))
           .slice(0, MAX_VISIBLE);
   return { today, period, night, special, pause, visible, balance: balance(f, child), games: gamesLeft(f, child.id, today) };
 }

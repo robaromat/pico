@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { MISSION_EMOJIS } from '../../model/defaults';
+import { DEFI_TEMPLATES, MISSION_EMOJIS } from '../../model/defaults';
 import { addEvent, decide, decideAll, upsertMission } from '../../model/ops';
 import {
   balance,
@@ -352,6 +352,11 @@ function Journal({ f, child }: { f: PicoFile; child: Child }) {
 
 // ---------- Panneaux d'action ----------
 function DefiSheet({ child, onClose }: { child: Child; onClose: () => void }) {
+  const f = data.value!;
+  // Modèles : les défis prêts à l'emploi, puis les derniers défis déjà donnés (sans doublon).
+  const templates: [string, string, number][] = [...DEFI_TEMPLATES];
+  for (const m of [...f.missions].filter((m) => m.oneOff && m.childId === child.id).sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1)))
+    if (templates.length < 6 && !templates.some((t) => t[1] === m.title)) templates.push([m.emoji, m.title, m.points]);
   const [title, setTitle] = useState('');
   const [emoji, setEmoji] = useState('⭐');
   const [points, setPoints] = useState(1);
@@ -382,6 +387,22 @@ function DefiSheet({ child, onClose }: { child: Child; onClose: () => void }) {
   return (
     <Sheet label="Défi du jour" onClose={onClose}>
       <h3>➕ Défi pour aujourd'hui</h3>
+      <div class="tpl">
+        {templates.map(([e, t, p]) => (
+          <button
+            key={t}
+            type="button"
+            aria-pressed={title === t}
+            onClick={() => {
+              setTitle(t);
+              setEmoji(e);
+              setPoints(p);
+            }}
+          >
+            {e} {t}
+          </button>
+        ))}
+      </div>
       <label>
         Le défi (positif et concret)
         <input type="text" value={title} placeholder="Dire bonjour à Mamie avec le sourire" onInput={(e) => setTitle(e.currentTarget.value)} />
@@ -431,6 +452,13 @@ function SurpriseSheet({ child, onClose }: { child: Child; onClose: () => void }
       </label>
       <label>
         Ce qu'il a fait (obligatoire, lu sur la tablette)
+        <div class="tpl">
+          {['tu as fait un acte de gentillesse'].map((t) => (
+            <button key={t} type="button" aria-pressed={text === t} onClick={() => setText(t)}>
+              {t}
+            </button>
+          ))}
+        </div>
         <input type="text" value={text} placeholder="tu as aidé ton frère à ranger" onInput={(e) => setText(e.currentTarget.value)} />
       </label>
       <p class="empty">La tablette affichera : « Papa ou Maman a remarqué que {text.trim() || '…'} 💛 »</p>

@@ -32,6 +32,17 @@ describe('missions et points', () => {
     expect(st.games).toBe(0);
   });
 
+  it('mission du vendredi « à partir de 16 h » : cachée avant, visible après, toute la soirée', () => {
+    let f = base();
+    f = { ...f, missions: [...f.missions, { id: 'mx', childId: 'c1', title: 'Pas de croix', emoji: '✅', points: 10, givesGame: true, moment: 'jour', days: [5], from: '16:00', active: true, updatedAt: '' }] };
+    const fri = (h: number) => new Date(2026, 10, 27, h, 0);
+    const titles = (d: Date) => nowState(f, child(f), d).visible.map((v) => v.mission.title);
+    expect(titles(fri(15))).not.toContain('Pas de croix');
+    expect(titles(fri(16))).toContain('Pas de croix');
+    expect(titles(fri(19))).toContain('Pas de croix');
+    expect(titles(at(17))).not.toContain('Pas de croix'); // mardi
+  });
+
   it('« J\'ai fini » → en attente → validé : points + 1 partie', () => {
     let f = base();
     f = declare(f, 'c1', 'm1', at(7, 30));

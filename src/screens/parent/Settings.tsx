@@ -14,7 +14,7 @@ import { Chips, Sheet, Toggle } from '../../ui/Sheet';
 
 // Réglages (derrière le code, redemandé à chaque ouverture) : missions, boutique, horaires, général, appareils.
 
-const MOMENTS: MissionMoment[] = ['matin', 'aprem', 'soir'];
+const MOMENTS: MissionMoment[] = ['matin', 'aprem', 'soir', 'jour'];
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 export function Settings({ onClose, onTuto }: { onClose: () => void; onTuto: () => void }) {
@@ -78,6 +78,7 @@ export function Settings({ onClose, onTuto }: { onClose: () => void; onTuto: () 
                         <br />
                         <small>
                           {m.points} ⭐ · {m.givesGame ? 'donne une partie' : 'pas de partie'} · {daysLabel(m.days)}
+                          {m.from ? ` · dès ${hourLabel(m.from)}` : ''}
                         </small>
                       </span>
                     </button>
@@ -277,8 +278,16 @@ function MissionSheet({ m, activeCount, onClose }: { m: Mission; activeCount: (m
       </label>
       <label>
         Points
-        <Chips values={[1, 2, 3, 4, 5]} value={x.points} onChange={(points) => setX({ ...x, points })} />
+        <Chips values={[1, 2, 3, 4, 5, 10]} value={x.points} onChange={(points) => setX({ ...x, points })} />
       </label>
+      <div class="set-i">
+        <span class="grow">
+          Visible seulement à partir de
+          <br />
+          <small>Laisser vide : visible tout le moment choisi</small>
+        </span>
+        <input class="inline" type="time" value={x.from ?? ''} onInput={(e) => setX({ ...x, from: e.currentTarget.value || undefined })} />
+      </div>
       <div class="set-i">
         <span class="grow">
           Donne une partie de jeu

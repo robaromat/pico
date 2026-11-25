@@ -509,3 +509,27 @@ button.set-i {
   gap: 10px;
   justify-content: space-between;
 }
+
+/* modèles de défis et de phrases */
+.tpl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 10px;
+}
+.tpl button {
+  border: 1px solid var(--p-line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 11px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--p-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.tpl button[aria-pressed='true'] {
+  border-color: var(--p-acc);
+  background: #eef3ff;
+}

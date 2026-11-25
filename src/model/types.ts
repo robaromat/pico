@@ -60,6 +60,8 @@ export interface Mission {
   /** Jours de la semaine où la mission est proposée (0 = dimanche). */
   days: number[];
   active: boolean;
+  /** Visible sur la tablette seulement à partir de cette heure (« HH:MM »), par ex. un bilan du vendredi 16 h. */
+  from?: string;
   /** Défi ponctuel : seulement le jour `date`. */
   oneOff?: boolean;
   date?: string;
