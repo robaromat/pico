@@ -202,8 +202,11 @@ export const runEspace: GameRunner = (cv, opts) => {
         x.restore();
       }
       if (comp) {
-        compX += (s.x - 78 - compX) * 0.06;
-        drawCompanion(x, comp, Math.max(45, compX), SHIP_Y - 30, 84, t);
+        // Toujours sur le côté de la fusée (jamais devant Pico), du côté où il y a de la place.
+        const side = s.x > W / 2 ? -1 : 1;
+        compX += (s.x + side * 100 - compX) * 0.08;
+        if (Math.abs(compX - s.x) < 90) compX = s.x + (compX < s.x ? -90 : 90);
+        drawCompanion(x, comp, Math.max(45, Math.min(W - 45, compX)), SHIP_Y - 20, 84, t);
         if (shield) drawShield(x, s.x, SHIP_Y - 4, 60, t);
       }
       hud(x, { lives: s.lives, t, duration: dur, score: '💥 ' + s.score, hint: 'Glisse ton doigt pour piloter !', dark: true });

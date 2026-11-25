@@ -143,7 +143,9 @@ export const runVerger: GameRunner = (cv, opts) => {
       }
       if (comp) {
         const side = s.x > W / 2 ? -1 : 1;
-        compX += (s.x + side * 90 - compX) * 0.05;
+        compX += (s.x + side * 100 - compX) * 0.08;
+        if (Math.abs(compX - s.x) < 95) compX = s.x + (compX < s.x ? -95 : 95);
+        compX = Math.max(46, Math.min(W - 46, compX));
         drawCompanion(x, comp, compX, GROUND - 36, 92, t);
         if (shield) drawShield(x, s.x, GROUND - 70, 74, t);
       }
