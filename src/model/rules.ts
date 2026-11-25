@@ -45,6 +45,15 @@ export function balance(f: PicoFile, child: Child): number {
   return n;
 }
 
+/** Total des bons points GAGNÉS (missions validées + surprises), sans le solde de départ, les achats ni les corrections. */
+export function earnedPoints(f: PicoFile, childId: string): number {
+  const evs = childEvents(f, childId);
+  let n = 0;
+  for (const v of countedValidations(evs)) n += v.points;
+  for (const e of evs) if (e.type === 'surprise') n += e.points;
+  return n;
+}
+
 export function gamesLeft(f: PicoFile, childId: string, today: string): number {
   const evs = childEvents(f, childId);
   const won = countedValidations(evs).filter((v) => v.day === today && v.game).length;

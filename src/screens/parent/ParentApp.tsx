@@ -4,6 +4,7 @@ import { addEvent, decide, decideAll, upsertMission } from '../../model/ops';
 import {
   balance,
   childEvents,
+  earnedPoints,
   gamesLeft,
   isPause,
   lastDays,
@@ -22,6 +23,7 @@ import { askCode, toast } from '../../ui/ask';
 import { Chips, Sheet, Toggle } from '../../ui/Sheet';
 import { useNow } from '../../ui/useNow';
 import { Settings } from './Settings';
+import { CREATURES, pointsToNext, unlockedCount } from '../../creatures';
 import { Tuto, tutoSeen } from './Tuto';
 import { setKidMode } from '../../kidmode';
 import { markOldSeen } from '../kid/celebrations';
@@ -257,6 +259,8 @@ function Today({ f, child, now, pause, special }: { f: PicoFile; child: Child; n
 function Piggy({ f, child }: { f: PicoFile; child: Child }) {
   const b = balance(f, child);
   const dream = f.rewards.find((r) => r.id === child.dreamId && !r.deleted);
+  const earned = earnedPoints(f, child.id);
+  const left = pointsToNext(earned);
   return (
     <section class="p-sec">
       <h3>Tirelire</h3>
@@ -268,6 +272,10 @@ function Piggy({ f, child }: { f: PicoFile; child: Child }) {
         <div class="kpi">
           <b>{dream ? `${dream.emoji} ${Math.min(100, Math.round((b / dream.price) * 100))} %` : '—'}</b>
           <small>{dream ? `rêve : ${dream.title} (${dream.price} ⭐)` : 'pas de rêve épinglé'}</small>
+        </div>
+        <div class="kpi">
+          <b>🐾 {unlockedCount(earned)} / {CREATURES.length}</b>
+          <small>{left === null ? 'collection complète' : `créatures · prochaine dans ${left} ⭐`}</small>
         </div>
       </div>
     </section>

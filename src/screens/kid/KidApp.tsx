@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { SCARVES } from '../../model/defaults';
 import { addEvent, declare, finishPlay, startPlay, updateChild } from '../../model/ops';
-import { balance, nowState, treasures, type MissionView, type NowState } from '../../model/rules';
+import { balance, earnedPoints, nowState, treasures, type MissionView, type NowState } from '../../model/rules';
+import { CREATURES, type Creature } from '../../creatures';
+import { Collection, markCreaturesSeen, newCreatures, NewCreature } from './Collection';
 import { dayLabel, hourLabel } from '../../model/time';
 import type { Child, PicoFile, Reward } from '../../model/types';
 import { data, engine, mutate } from '../../sync/store';
@@ -14,7 +16,7 @@ import { Game } from './Game';
 
 // La tablette de l'enfant : Pico, la tirelire, les missions du moment, le bouton Jouer, la boutique et les trésors.
 
-type Tab = 'missions' | 'shop' | 'treasures';
+type Tab = 'missions' | 'shop' | 'collection' | 'treasures';
 
 export function KidApp({ onParent }: { onParent: () => void }) {
   const f = data.value!;
@@ -25,14 +27,20 @@ export function KidApp({ onParent }: { onParent: () => void }) {
   const [playing, setPlaying] = useState(false);
   const [party, setParty] = useState<Celebration | null>(null);
   const [bought, setBought] = useState<Reward | null>(null);
+  const [crea, setCrea] = useState<Creature[] | null>(null);
   const sound = f.settings.sound;
+  const earned = earnedPoints(f, child.id);
 
   // Fêtes à montrer (validations et surprises arrivées depuis un téléphone).
   useEffect(() => {
     if (playing || party || bought || st.night) return;
     const next = pendingCelebrations(f, child.id)[0];
-    if (next) setParty(next);
-  }, [f, playing, party, bought, st.night]);
+    if (next) return setParty(next);
+    // Après la fête des points : la nouvelle créature débloquée.
+    if (crea) return;
+    const fresh = newCreatures(earned);
+    if (fresh.length) setCrea(fresh);
+  }, [f, playing, party, bought, crea, st.night]);
 
   async function parentMode() {
     if (await askCode('Mode parent')) onParent();
@@ -74,12 +82,14 @@ export function KidApp({ onParent }: { onParent: () => void }) {
       <main class="k-body">
         {tab === 'missions' && <Missions f={f} child={child} st={st} sound={sound} onPlay={() => setPlaying(true)} />}
         {tab === 'shop' && <Shop f={f} child={child} st={st} onBought={setBought} sound={sound} />}
+        {tab === 'collection' && <Collection earned={earned} />}
         {tab === 'treasures' && <Treasures f={f} child={child} />}
       </main>
 
       <nav class="k-tabs">
         <TabBtn tab="missions" cur={tab} set={setTab} icon="⭐" label="Missions" />
         <TabBtn tab="shop" cur={tab} set={setTab} icon="🛍️" label="Boutique" />
+        <TabBtn tab="collection" cur={tab} set={setTab} icon="🐾" label="Collection" />
         <TabBtn tab="treasures" cur={tab} set={setTab} icon="🎁" label="Mes trésors" />
       </nav>
 
@@ -109,6 +119,17 @@ export function KidApp({ onParent }: { onParent: () => void }) {
             </>
           )}
         </Party>
+      )}
+      {crea && !party && (
+        <NewCreature
+          list={crea}
+          sound={sound}
+          onClose={() => {
+            markCreaturesSeen(CREATURES.indexOf(crea.at(-1)!) + 1);
+            setCrea(null);
+            setTab('collection');
+          }}
+        />
       )}
       {bought && (
         <Party child={child} sound={sound} expr="gift" onClose={() => setBought(null)}>

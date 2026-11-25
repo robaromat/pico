@@ -43,6 +43,7 @@ export const MISSION_EMOJIS = ['⭐', '🖐️', '👕', '⏰', '🏫', '✏️'
 export const DEFI_TEMPLATES: [string, string, number][] = [
   ['🚸', "J'ai été prudent en ville (je reste à côté des adultes)", 1],
   ['🛒', 'Je me tiens bien dans un magasin', 1],
+  ['📚', 'Défi lecture', 2],
 ];
 export const REWARD_EMOJIS = ['🎁', '📖', '🎲', '🍨', '💛', '☕', '🍽️', '🎬', '🧸', '🧁', '🏊', '🍿', '🐐', '🎳', '🦒', '🤸', '🎢', '🏰', '🛡️', '🎂', '🛝', '🧩', '🍕', '🎨', '🚲'];
 

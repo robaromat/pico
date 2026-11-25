@@ -533,3 +533,6 @@ button.set-i {
   border-color: var(--p-acc);
   background: #eef3ff;
 }
+.kpis .kpi:nth-child(3):last-child {
+  grid-column: span 2;
+}
