@@ -4,6 +4,7 @@ import { runEspace } from '../../game/espace';
 import type { GameResult, GameRunner } from '../../game/kit';
 import { runVerger } from '../../game/verger';
 import { bestOf } from '../../model/ops';
+import { CREATURES } from '../../creatures';
 import type { Child, GameId } from '../../model/types';
 import { chime } from '../../ui/fx';
 import { Pico } from '../../ui/Pico';
@@ -70,6 +71,7 @@ export function Game({
   const [left, setLeft] = useState(5);
   const canvas = useRef<HTMLCanvasElement>(null);
   const bestBefore = useRef(0);
+  const companion = CREATURES.find((c) => c.id === child.companion);
 
   function choose(g: GameDef) {
     bestBefore.current = bestOf(child, g.id);
@@ -95,7 +97,7 @@ export function Game({
 
   useEffect(() => {
     if (phase !== 'play' || !canvas.current) return;
-    const run = game.run(canvas.current, { scarf: child.scarf, level: child.level, sound });
+    const run = game.run(canvas.current, { scarf: child.scarf, level: child.level, sound, companion: child.companion });
     void run.done.then((r) => {
       setResult(r);
       onEnd(game.id, r);
@@ -119,6 +121,11 @@ export function Game({
     return (
       <div class="choose">
         <h2>À quoi on joue ?</h2>
+        {companion && (
+          <p class="small">
+            {companion.name} t'accompagne et te protège une fois 🛡️
+          </p>
+        )}
         <div class="choose-list">
           {GAMES.map((g) => (
             <button key={g.id} class={`gcard g-${g.id}`} onClick={() => choose(g)}>

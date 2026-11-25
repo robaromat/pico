@@ -1,6 +1,6 @@
 import { picoImage } from '../ui/Pico';
 import { blip } from '../ui/fx';
-import { follow, H, hud, runLoop, W, type GameRunner } from './kit';
+import { companionImage, drawCompanion, drawShield, follow, H, hud, runLoop, W, type GameRunner } from './kit';
 
 // « Pico dans les étoiles » : Pico pilote sa fusée-gland en bas de l'écran (le doigt la déplace)
 // et lance tout seul des graines lumineuses. On pulvérise les cailloux de l'espace avant qu'ils touchent la fusée.
@@ -12,6 +12,9 @@ export const runEspace: GameRunner = (cv, opts) => {
   const dur = opts.duration ?? 60;
   const lvl = opts.level;
   const img = picoImage('happy', opts.scarf);
+  const comp = companionImage(opts.companion);
+  let shield = !!comp;
+  let compX = W / 2;
   const stars = Array.from({ length: 70 }, () => ({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.8 + 0.4, s: 20 + Math.random() * 40 }));
   type Rock = { x: number; y: number; r: number; vy: number; vx: number; rot: number; hp: number };
   type Shot = { x: number; y: number };
@@ -70,7 +73,8 @@ export const runEspace: GameRunner = (cv, opts) => {
         if (r.hp > 0 && s.inv <= 0 && Math.abs(r.x - s.x) < r.r + 26 && Math.abs(r.y - (SHIP_Y - 20)) < r.r + 34) {
           r.hp = 0;
           pops.push({ x: r.x, y: r.y, t: 0 });
-          s.lives--;
+          if (shield) shield = false;
+          else s.lives--;
           s.inv = 1.4;
           navigator.vibrate?.(80);
         }
@@ -197,7 +201,17 @@ export const runEspace: GameRunner = (cv, opts) => {
         x.stroke();
         x.restore();
       }
+      if (comp) {
+        compX += (s.x - 78 - compX) * 0.06;
+        drawCompanion(x, comp, Math.max(45, compX), SHIP_Y - 30, 84, t);
+        if (shield) drawShield(x, s.x, SHIP_Y - 4, 60, t);
+      }
       hud(x, { lives: s.lives, t, duration: dur, score: '💥 ' + s.score, hint: 'Glisse ton doigt pour piloter !', dark: true });
+      if (comp && shield) {
+        x.font = '800 26px "Baloo 2", sans-serif';
+        x.textAlign = 'left';
+        x.fillText('🛡️', 130, 34);
+      }
     },
 
     result: (t) => ({ score: s.score, lives: Math.max(0, s.lives), seconds: Math.round(t) }),

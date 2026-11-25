@@ -82,7 +82,7 @@ export function KidApp({ onParent }: { onParent: () => void }) {
       <main class="k-body">
         {tab === 'missions' && <Missions f={f} child={child} st={st} sound={sound} onPlay={() => setPlaying(true)} />}
         {tab === 'shop' && <Shop f={f} child={child} st={st} onBought={setBought} sound={sound} />}
-        {tab === 'collection' && <Collection earned={earned} />}
+        {tab === 'collection' && <Collection earned={earned} child={child} />}
         {tab === 'treasures' && <Treasures f={f} child={child} />}
       </main>
 

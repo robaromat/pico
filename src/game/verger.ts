@@ -1,6 +1,6 @@
 import { picoImage } from '../ui/Pico';
 import { blip } from '../ui/fx';
-import { follow, H, hud, runLoop, W, type GameRunner } from './kit';
+import { companionImage, drawCompanion, drawShield, follow, H, hud, runLoop, W, type GameRunner } from './kit';
 
 // « Le verger de Pico » : Pico tient un panier en bas de l'écran (le doigt le déplace).
 // Il attrape les pommes (+1) et les glands dorés (+3), et évite les pommes de pin qui piquent.
@@ -13,6 +13,9 @@ export const runVerger: GameRunner = (cv, opts) => {
   const lvl = opts.level;
   const img = picoImage('hello', opts.scarf);
   const imgH = picoImage('happy', opts.scarf);
+  const comp = companionImage(opts.companion);
+  let shield = !!comp;
+  let compX = W / 2;
   type Fruit = { x: number; y: number; vy: number; k: 'a' | 'g' | 'p'; rot: number };
   type Pop = { x: number; y: number; t: number; txt: string };
   let fruits: Fruit[] = [];
@@ -40,10 +43,11 @@ export const runVerger: GameRunner = (cv, opts) => {
         if (f.y > GROUND - 128 && f.y < GROUND - 88 && Math.abs(f.x - s.x) < 56) {
           if (f.k === 'p') {
             if (s.inv <= 0) {
-              s.lives--;
+              pops.push({ x: f.x, y: f.y, t: 0, txt: shield ? 'Protégé !' : 'Aïe !' });
+              if (shield) shield = false;
+              else s.lives--;
               s.inv = 1.4;
               navigator.vibrate?.(80);
-              pops.push({ x: f.x, y: f.y, t: 0, txt: 'Aïe !' });
             }
           } else {
             const n = f.k === 'g' ? 3 : 1;
@@ -134,10 +138,21 @@ export const runVerger: GameRunner = (cv, opts) => {
       x.textAlign = 'center';
       x.font = '800 28px "Baloo 2", sans-serif';
       for (const p of pops) {
-        x.fillStyle = p.txt.startsWith('+') ? `rgba(47,165,106,${1 - p.t})` : `rgba(232,71,91,${1 - p.t})`;
+        x.fillStyle = p.txt.startsWith('+') ? `rgba(47,165,106,${1 - p.t})` : p.txt.startsWith('P') ? `rgba(60,147,232,${1 - p.t})` : `rgba(232,71,91,${1 - p.t})`;
         x.fillText(p.txt, p.x, p.y - 30 - p.t * 50);
       }
+      if (comp) {
+        const side = s.x > W / 2 ? -1 : 1;
+        compX += (s.x + side * 90 - compX) * 0.05;
+        drawCompanion(x, comp, compX, GROUND - 36, 92, t);
+        if (shield) drawShield(x, s.x, GROUND - 70, 74, t);
+      }
       hud(x, { lives: s.lives, t, duration: dur, score: '🍎 ' + s.score, hint: 'Glisse ton doigt pour attraper !' });
+      if (comp && shield) {
+        x.font = '800 26px "Baloo 2", sans-serif';
+        x.textAlign = 'left';
+        x.fillText('🛡️', 130, 34);
+      }
     },
 
     result: (t) => ({ score: s.score, lives: Math.max(0, s.lives), seconds: Math.round(t) }),

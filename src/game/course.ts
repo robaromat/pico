@@ -1,5 +1,6 @@
 import { picoImage } from '../ui/Pico';
 import { blip } from '../ui/fx';
+import { companionImage, drawCompanion, drawShield } from './kit';
 
 // « La course de Pico » : Pico court dans la forêt, on touche l'écran pour sauter.
 // Pommes et glands à ramasser, souches et flaques à éviter. 60 s ou 3 vies, puis fin nette.
@@ -17,6 +18,7 @@ export interface CourseOptions {
   level: number;
   sound: boolean;
   duration?: number;
+  companion?: string | null;
 }
 
 const W = 800;
@@ -33,6 +35,9 @@ export function runCourse(cv: HTMLCanvasElement, opts: CourseOptions): { done: P
   const img = picoImage('hello', opts.scarf);
   const imgJ = picoImage('happy', opts.scarf);
   const lvl = opts.level;
+  const comp = companionImage(opts.companion);
+  let shield = !!comp;
+  let compY = GROUND;
   const g = { t: 0, dur: opts.duration ?? 60, lives: 3, score: 0, y: GROUND, vy: 0, inv: 0, spO: 1.6, spI: 0.6, speed: 270 * lvl, off: 0, over: false };
   type Obs = { k: 's' | 'p'; x: number; w: number; h: number };
   type Item = { x: number; y: number; k: 'a' | 'g'; got?: boolean };
@@ -207,7 +212,8 @@ export function runCourse(cv: HTMLCanvasElement, opts: CourseOptions): { done: P
           ow = o.w - 12,
           oy = GROUND + 38 - o.h;
         if (g.inv <= 0 && px < ox + ow && px + pw > ox && py < oy + o.h && py + ph > oy) {
-          g.lives--;
+          if (shield) shield = false;
+          else g.lives--;
           g.inv = 1.4;
           navigator.vibrate?.(80);
         }
@@ -232,7 +238,17 @@ export function runCourse(cv: HTMLCanvasElement, opts: CourseOptions): { done: P
       const im = g.y < GROUND ? imgJ : img;
       if (im.complete) x.drawImage(im, P.x, g.y - P.h + bob + 12, P.w, P.h);
     }
+    if (comp) {
+      compY += (g.y - compY) * 0.08;
+      drawCompanion(x, comp, P.x - 40, compY - 66, 90, g.t);
+      if (shield) drawShield(x, P.x + P.w / 2, g.y - P.h / 2 + 14, 58, g.t);
+    }
     drawHud();
+    if (comp && shield) {
+      x.font = '800 26px "Baloo 2", sans-serif';
+      x.textAlign = 'left';
+      x.fillText('🛡️', 130, 34);
+    }
     if (!g.over) raf = requestAnimationFrame(frame);
   }
 

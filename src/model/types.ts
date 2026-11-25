@@ -46,6 +46,8 @@ export interface Child {
   best: number;
   /** Meilleur score de chaque jeu. */
   bests: Record<string, number>;
+  /** Créature compagnon choisie dans la collection (l'accompagne dans les jeux). */
+  companion?: string | null;
   updatedAt: string;
 }
 

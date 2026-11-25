@@ -1,7 +1,7 @@
 {
   "name": "pico",
   "private": true,
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Pico : petite app de bons points (PWA personnelle).",
   "type": "module",
   "scripts": {

@@ -1,3 +1,5 @@
+import { CREATURES, creatureSvg } from '../creatures';
+
 // Outils communs aux jeux de Pico : toile 800 × 500 mise à l'échelle, boucle d'animation,
 // doigt qui glisse (position horizontale), bandeau du haut (vies, temps, score) et fin de partie.
 
@@ -9,6 +11,8 @@ export interface GameResult {
 
 export interface GameOptions {
   scarf: string;
+  /** Créature compagnon : elle suit Pico et le protège une fois (bouclier). */
+  companion?: string | null;
   /** Difficulté adaptative (0,75 à 1,3). */
   level: number;
   sound: boolean;
@@ -129,4 +133,37 @@ export function follow(from: number, target: number | null, maxSpeed: number, dt
   const d = Math.max(min, Math.min(max, target)) - from;
   const step = Math.sign(d) * Math.min(Math.abs(d), maxSpeed * dt);
   return from + step;
+}
+
+/** Image de la créature compagnon pour le canvas (null si aucune). */
+export function companionImage(id?: string | null): HTMLImageElement | null {
+  const c = CREATURES.find((x) => x.id === id);
+  if (!c) return null;
+  const img = new Image();
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(creatureSvg(c).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" '));
+  return img;
+}
+
+/** Bulle de protection autour du joueur tant que le bouclier du compagnon n'a pas servi. */
+export function drawShield(x: CanvasRenderingContext2D, cx: number, cy: number, r: number, t: number) {
+  x.save();
+  x.globalAlpha = 0.35 + Math.sin(t * 5) * 0.1;
+  x.fillStyle = '#9FD8FF';
+  x.beginPath();
+  x.arc(cx, cy, r, 0, 7);
+  x.fill();
+  x.globalAlpha = 0.8;
+  x.strokeStyle = '#FFFFFF';
+  x.lineWidth = 3;
+  x.beginPath();
+  x.arc(cx, cy, r, -2.4, -1.6);
+  x.stroke();
+  x.restore();
+}
+
+/** Le compagnon, qui flotte doucement. */
+export function drawCompanion(x: CanvasRenderingContext2D, img: HTMLImageElement | null, cx: number, cy: number, size: number, t: number) {
+  if (!img?.complete) return;
+  const bob = Math.sin(t * 4) * 5;
+  x.drawImage(img, cx - size / 2, cy - size / 2 + bob, size, size);
 }

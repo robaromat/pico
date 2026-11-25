@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { CREATURES, creatureSvg, nextForm, pointsToNext, POINTS_PER_CREATURE, previousForm, TYPE_INFO, unlockedCount, type Creature } from '../../creatures';
 import { chime, confetti } from '../../ui/fx';
+import { updateChild } from '../../model/ops';
+import type { Child } from '../../model/types';
+import { mutate } from '../../sync/store';
 
 // Onglet « Ma collection » : les créatures débloquées (1 tous les 10 bons points gagnés),
 // la prochaine en silhouette avec sa jauge, et la fiche de chaque créature (type, PV, attaque, évolution).
@@ -9,7 +12,7 @@ function Art({ c, cls = '' }: { c: Creature; cls?: string }) {
   return <span class={`crea-wrap ${cls}`} dangerouslySetInnerHTML={{ __html: creatureSvg(c) }} />;
 }
 
-export function Collection({ earned }: { earned: number }) {
+export function Collection({ earned, child }: { earned: number; child: Child }) {
   const n = unlockedCount(earned);
   const left = pointsToNext(earned);
   const next = CREATURES[n];
@@ -34,10 +37,12 @@ export function Collection({ earned }: { earned: number }) {
         </div>
       )}
       {!next && <div class="alldone">Bravo, tu as toutes les créatures ! 🏆</div>}
+      {n > 0 && !child.companion && <p class="k-hint">Touche une créature pour en faire ton compagnon de jeu 🛡️</p>}
       <div class="crea-grid">
         {CREATURES.map((c, i) =>
           i < n ? (
-            <button key={c.id} class={`crea-card t-${c.type}`} onClick={() => setOpen(c)}>
+            <button key={c.id} class={`crea-card t-${c.type}${child.companion === c.id ? ' comp' : ''}`} onClick={() => setOpen(c)}>
+              {child.companion === c.id && <span class="comp-tag">🛡️ Compagnon</span>}
               <Art c={c} />
               <b>{c.name}</b>
               <small>
@@ -53,12 +58,13 @@ export function Collection({ earned }: { earned: number }) {
           ),
         )}
       </div>
-      {open && <Sheet c={open} owned={(x) => CREATURES.indexOf(x) < n} onClose={() => setOpen(null)} />}
+      {open && <Sheet c={open} child={child} owned={(x) => CREATURES.indexOf(x) < n} onClose={() => setOpen(null)} />}
     </>
   );
 }
 
-function Sheet({ c, owned, onClose }: { c: Creature; owned: (c: Creature) => boolean; onClose: () => void }) {
+function Sheet({ c, child, owned, onClose }: { c: Creature; child: Child; owned: (c: Creature) => boolean; onClose: () => void }) {
+  const isComp = child.companion === c.id;
   const t = TYPE_INFO[c.type];
   const prev = previousForm(c);
   const next = nextForm(c);
@@ -91,9 +97,25 @@ function Sheet({ c, owned, onClose }: { c: Creature; owned: (c: Creature) => boo
           {prev ? ` · évolution de ${prev.name}` : ''}
         </p>
         {next && <p class="small">{owned(next) ? `Évolue en ${next.name} ✔` : 'Évolue en… ? (continue tes missions !)'}</p>}
-        <button class="kbtn" onClick={onClose}>
-          Fermer
-        </button>
+        <div class="row">
+          {isComp ? (
+            <span class="comp-on">🛡️ C'est ton compagnon de jeu</span>
+          ) : (
+            <button
+              class="kbtn"
+              onClick={() => {
+                mutate((f) => updateChild(f, child.id, { companion: c.id }));
+                onClose();
+              }}
+            >
+              🛡️ Mon compagnon
+            </button>
+          )}
+          <button class="kbtn ghost" onClick={onClose}>
+            Fermer
+          </button>
+        </div>
+        <p class="small">Ton compagnon te suit dans les jeux et te protège une fois par partie.</p>
       </div>
     </div>
   );

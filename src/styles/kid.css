@@ -845,3 +845,43 @@
 .crea-fiche .atk {
   font-weight: 700;
 }
+.crea-card {
+  position: relative;
+}
+.crea-card.comp {
+  box-shadow: 0 0 0 3px #ffc22e;
+}
+.comp-tag {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffc22e;
+  color: #5a3a00;
+  font-weight: 800;
+  font-size: 0.7em;
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.crea-fiche .row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.comp-on {
+  font-weight: 800;
+  color: #b07800;
+}
+.choose .small {
+  margin: -8px 0 0;
+  font-weight: 700;
+  color: var(--k-soft);
+}
+.kbtn.ghost {
+  background: #eef1f7;
+  color: var(--k-ink);
+  box-shadow: 0 4px 0 #d9deea;
+}
