@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { device, saveDevice } from './device';
+import { kidMode, setKidMode } from './kidmode';
 import { updateReady, applyUpdate } from './pwa';
 import { KidApp } from './screens/kid/KidApp';
 import { ParentApp } from './screens/parent/ParentApp';
@@ -23,6 +24,8 @@ export function App() {
   if (!dev) screen = <Setup />;
   else if (!data.value) screen = <Loading />;
   else if (dev.role === 'child' && !parentOnTablet) screen = <KidApp onParent={() => setParentOnTablet(true)} />;
+  // Téléphone parent prêté à l'enfant : le cadenas (code) ramène au mode parent.
+  else if (dev.role === 'parent' && kidMode.value) screen = <KidApp onParent={() => setKidMode(false)} />;
   else screen = <ParentApp onTablet={dev.role === 'child'} onBack={() => setParentOnTablet(false)} />;
 
   const ask = codeAsk.value;

@@ -81,6 +81,7 @@ function cards(name: string): Card[] {
       lines: [
         'Missions, boutique, horaires d\'école et du mercredi ou du week-end, sons, code parent.',
         'Ajouter un appareil : un QR code à scanner, valable 60 secondes.',
+        `Prêter le téléphone à ${name} : le bouton en haut passe en mode enfant, le cadenas 🔒 et le code ramènent ici.`,
         'Ce tuto se revoit depuis Réglages → Général.',
       ],
     },

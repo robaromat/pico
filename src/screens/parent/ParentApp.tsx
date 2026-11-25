@@ -23,6 +23,8 @@ import { Chips, Sheet, Toggle } from '../../ui/Sheet';
 import { useNow } from '../../ui/useNow';
 import { Settings } from './Settings';
 import { Tuto, tutoSeen } from './Tuto';
+import { setKidMode } from '../../kidmode';
+import { markOldSeen } from '../kid/celebrations';
 
 // Téléphone parent : tableau de bord en lecture, et chaque action protégée par le code (redemandé à chaque fois).
 
@@ -81,9 +83,19 @@ export function ParentApp({ onTablet, onBack }: { onTablet: boolean; onBack: () 
           ⚙︎
         </button>
       </header>
-      {onTablet && (
+      {onTablet ? (
         <button class="pbtn acc back-kid" onClick={onBack}>
           ← Retour au mode enfant
+        </button>
+      ) : (
+        <button
+          class="pbtn back-kid"
+          onClick={() => {
+            markOldSeen(f, child.id);
+            setKidMode(true);
+          }}
+        >
+          🦔 Prêter le téléphone à {child.name}
         </button>
       )}
 

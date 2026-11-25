@@ -61,6 +61,16 @@ export function pendingCelebrations(f: PicoFile, childId: string): Celebration[]
   return out;
 }
 
+/**
+ * Téléphone prêté : les validations et surprises de plus d'une heure sont considérées comme déjà fêtées
+ * (pas de rafale de vieilles fêtes), les plus récentes restent à fêter.
+ */
+export function markOldSeen(f: PicoFile, childId: string, now = new Date()): void {
+  const limit = now.getTime() - 60 * 60 * 1000;
+  const { vals, surprises } = candidates(f, childId);
+  markSeen([...vals, ...surprises].filter((e) => new Date(e.at).getTime() < limit).map((e) => e.id));
+}
+
 export function markSeen(ids: string[]): void {
   const seen = readSeen() ?? new Set<string>();
   for (const id of ids) seen.add(id);
